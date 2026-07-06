@@ -62,19 +62,7 @@ def chat(request: ChatRequest):
     if not OPENAI_API_KEY:
         raise HTTPException(status_code=500, detail="OPENAI_API_KEY is not set on the server")
 
-    assistant_messages = [m for m in request.messages if m.role == "assistant"]
-    last_assistant = assistant_messages[-1] if assistant_messages else None
-    force_answer = last_assistant is not None and last_assistant.type == "clarify"
-
     converted = [{"role": m.role, "content": m.content} for m in request.messages]
-
-    if force_answer:
-        converted[-1]["content"] += (
-            '\n\n(GIVE ME THE FULL ANSWER NOW — Problem Summary, Roadmap, Step-by-Step '
-            'Solution, and Next Steps — using best-guess assumptions for anything still '
-            'unclear. Respond with "type":"answer" and "questions":[]. DO NOT ask any '
-            "more questions.)"
-        )
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT + JSON_INSTRUCTION}] + converted
 
@@ -128,22 +116,6 @@ def chat(request: ChatRequest):
     try:
         data = parse_with_retry(messages)
 
-        if force_answer and data.get("type") == "clarify":
-            retry_messages = messages + [
-                {"role": "assistant", "content": json.dumps(data)},
-                {
-                    "role": "user",
-                    "content": (
-                        'You just asked another clarifying question, which is NOT ALLOWED. '
-                        'GIVE ME THE FULL ANSWER NOW — Problem Summary, Roadmap, Step-by-Step '
-                        'Solution, and Next Steps — using best-guess assumptions for anything '
-                        'unclear. Respond with "type":"answer" and "questions":[]. DO NOT ask '
-                        "any more questions."
-                    ),
-                },
-            ]
-            data = parse_with_retry(retry_messages)
-
         if not data.get("text"):
             data["text"] = (
                 "Sorry, I had trouble forming a full response that time. "
@@ -156,12 +128,10 @@ def chat(request: ChatRequest):
             "questions": [],
         }
 
-    response_type = "answer" if force_answer else data.get("type", "answer")
-
     return ChatResponse(
-        type=response_type,
+        type=data.get("type", "answer"),
         text=data.get("text", ""),
-        questions=[] if force_answer else data.get("questions", []),
+        questions=data.get("questions", []),
     )
 
 
