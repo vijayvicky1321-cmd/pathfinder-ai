@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-const API_URL = "http://localhost:8010/api/chat";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8010"}/api/chat`;
 
 function makeChat() {
   return { id: crypto.randomUUID(), title: "New chat", messages: [] };
