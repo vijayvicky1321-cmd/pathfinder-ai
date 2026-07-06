@@ -99,9 +99,20 @@ body {
   align-items: center;
 }
 
+.app-name-block {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
 .app-name {
   font-weight: 600;
   font-size: 1rem;
+}
+
+.app-credit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .chat {

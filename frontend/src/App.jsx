@@ -115,7 +115,10 @@ export default function App() {
 
       <div className="main">
         <header className="topbar">
-          <span className="app-name">Pathfinder AI</span>
+          <div className="app-name-block">
+            <span className="app-name">Pathfinder AI</span>
+            <span className="app-credit">Developed by Vijay</span>
+          </div>
         </header>
 
         <div className="chat">
