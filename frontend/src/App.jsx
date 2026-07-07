@@ -52,6 +52,10 @@ function AutoGrowTextarea({ value, onChange, onKeyDown, placeholder }) {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [value]);
 
+  useEffect(() => {
+    ref.current?.focus();
+  }, []);
+
   return (
     <textarea
       ref={ref}
