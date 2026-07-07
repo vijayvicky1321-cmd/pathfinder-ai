@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8010"}/api/chat`;
 
@@ -144,7 +145,9 @@ export default function App() {
             return (
               <div key={i} className={`message-row ${m.role}`}>
                 <div className={`message ${m.role}`}>
-                  <div className="content">{m.content}</div>
+                  <div className="content">
+                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                  </div>
                   {isLast && !loading && m.questions?.length > 0 && (
                     <div className="questions">
                       {m.questions.map((q, qi) => (
