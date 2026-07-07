@@ -160,9 +160,7 @@ body {
 }
 
 .message {
-  padding: 0.7rem 1rem;
-  border-radius: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
   max-width: 70%;
   font-size: 0.95rem;
 }
@@ -217,19 +215,23 @@ body {
 .message.user {
   background: var(--bubble-user);
   color: var(--bubble-user-text);
+  border-radius: 1.1rem;
   border-bottom-right-radius: 0.25rem;
+  padding: 0.7rem 1rem;
 }
 
 .message.assistant {
-  background: var(--bubble-assistant);
+  background: none;
   color: var(--text);
-  border-bottom-left-radius: 0.25rem;
-  max-width: 80%;
+  max-width: 100%;
+  padding: 0;
 }
 
 .message.error {
   background: rgba(255, 80, 80, 0.15);
   color: #e05a4e;
+  border-radius: 0.9rem;
+  padding: 0.7rem 1rem;
 }
 
 .thinking-dots span {
