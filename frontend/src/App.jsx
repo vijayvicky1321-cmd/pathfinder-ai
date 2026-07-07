@@ -1,20 +1,38 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8010"}/api/chat`;
+const STORAGE_KEY = "pathfinder-ai-chats";
 
 function makeChat() {
   return { id: crypto.randomUUID(), title: "New chat", messages: [] };
 }
 
+function loadStoredState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed.chats) || parsed.chats.length === 0) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
-  const [chats, setChats] = useState([makeChat()]);
-  const [activeId, setActiveId] = useState(chats[0].id);
+  const stored = loadStoredState();
+  const [chats, setChats] = useState(stored?.chats ?? [makeChat()]);
+  const [activeId, setActiveId] = useState(stored?.activeId ?? chats[0].id);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ chats, activeId }));
+  }, [chats, activeId]);
 
   const activeChat = chats.find((c) => c.id === activeId);
   const messages = activeChat.messages;
@@ -29,6 +47,22 @@ export default function App() {
     setActiveId(chat.id);
     setError(null);
     setSidebarOpen(false);
+  }
+
+  function deleteChat(id, e) {
+    e.stopPropagation();
+    setChats((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      if (next.length === 0) {
+        const chat = makeChat();
+        setActiveId(chat.id);
+        return [chat];
+      }
+      if (id === activeId) {
+        setActiveId(next[0].id);
+      }
+      return next;
+    });
   }
 
   async function sendText(text) {
@@ -115,7 +149,15 @@ export default function App() {
                 setSidebarOpen(false);
               }}
             >
-              {c.title}
+              <span className="chat-list-title">{c.title}</span>
+              <button
+                className="chat-delete-button"
+                onClick={(e) => deleteChat(c.id, e)}
+                aria-label="Delete chat"
+                title="Delete chat"
+              >
+                ✕
+              </button>
             </div>
           ))}
         </div>
