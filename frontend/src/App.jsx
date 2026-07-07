@@ -12,6 +12,7 @@ export default function App() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const bottomRef = useRef(null);
 
   const activeChat = chats.find((c) => c.id === activeId);
@@ -26,6 +27,7 @@ export default function App() {
     setChats((prev) => [chat, ...prev]);
     setActiveId(chat.id);
     setError(null);
+    setSidebarOpen(false);
   }
 
   async function sendText(text) {
@@ -96,7 +98,9 @@ export default function App() {
 
   return (
     <div className="layout">
-      <aside className="sidebar">
+      {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+
+      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <button className="new-chat-button" onClick={newChat}>
           + New chat
         </button>
@@ -105,7 +109,10 @@ export default function App() {
             <div
               key={c.id}
               className={`chat-list-item ${c.id === activeId ? "active" : ""}`}
-              onClick={() => setActiveId(c.id)}
+              onClick={() => {
+                setActiveId(c.id);
+                setSidebarOpen(false);
+              }}
             >
               {c.title}
             </div>
@@ -115,6 +122,13 @@ export default function App() {
 
       <div className="main">
         <header className="topbar">
+          <button
+            className="menu-button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open chat list"
+          >
+            ☰
+          </button>
           <div className="app-name-block">
             <span className="app-name">Pathfinder AI</span>
             <span className="app-credit">Developed by Vijay</span>
